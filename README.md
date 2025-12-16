@@ -1,2 +1,7 @@
-# Read me
-Program code for a game implemented with socket communication.
+## 摘要 
+本專題旨在實作一款基於TCP/IP 協定的多人連線文字版狼人殺遊戲。
+透過Python的網路編程，建立一個穩定的主從式（Client-Server）架
+構，讓多名玩家能透過網路即時互動。系統模擬了完整的桌遊邏輯，
+包含房間管理、角色分配、日夜交替、技能判定以及勝負結算。此編
+程重點展示多執行續處理併發連線能力，以及使用Socket傳輸JSON格
+式資料的通訊協定設計。 
