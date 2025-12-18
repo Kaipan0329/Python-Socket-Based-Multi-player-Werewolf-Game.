@@ -94,7 +94,7 @@ def leave_room(nickname, room_name):
             new_host_name = new_host_member['nickname']
             rooms[room_name]['host'] = new_host_name
             new_host_member['role'] = 'host'
-            broadcast_room(room_name, "系統", f"👑 房主已轉移給 {new_host_name}")
+            broadcast_room(room_name, "系統", f"房主已轉移給 {new_host_name}")
         else:
             try: del rooms[room_name]
             except: pass
@@ -118,10 +118,10 @@ def check_game_over(room_name):
     alive_humans = [c for c in members if c.get('game_role') not in ['狼人', '狼王'] and c.get('alive')]
 
     if not alive_wolves:
-        broadcast_room(room_name, "系統", "🏆 遊戲結束：狼人陣營全滅，好人陣營獲勝！")
+        broadcast_room(room_name, "系統", "遊戲結束：狼人陣營全滅，好人陣營獲勝！")
         return True 
     if len(alive_wolves) >= len(alive_humans):
-        broadcast_room(room_name, "系統", "🏆 遊戲結束：狼人陣營數量等於或大於好人陣營，狼人陣營獲勝！")
+        broadcast_room(room_name, "系統", "遊戲結束：狼人陣營數量等於或大於好人陣營，狼人陣營獲勝！")
         return True 
     return False
 
@@ -132,7 +132,7 @@ def assign_roles(room_name):
     roles_pool = []
 
     if num_players < 4 or num_players > MAX_PLAYERS: 
-         broadcast_room(room_name, "系統", f"❌ 玩家人數 {num_players} 不符合 4~{MAX_PLAYERS} 人要求，遊戲取消。")
+         broadcast_room(room_name, "系統", f"玩家人數 {num_players} 不符合 4~{MAX_PLAYERS} 人要求，遊戲取消。")
          rooms[room_name]['state'] = 'waiting'
          return
 
@@ -174,7 +174,7 @@ def assign_roles(room_name):
             send_private_msg(c['socket'], "系統", msg)
         except: continue
             
-    broadcast_room(room_name, "系統", f"✅ 角色已分配完畢，共 {num_players} 人，準備進入第一夜。")
+    broadcast_room(room_name, "系統", f"角色已分配完畢，共 {num_players} 人，準備進入第一夜。")
 
 # 等待機制
 def wait_for_action(room_name, role, timeout=60):
@@ -188,7 +188,7 @@ def wait_for_action(room_name, role, timeout=60):
         time_remaining = int(timeout - (time.time() - start))
 
         if 1 <= time_remaining <= 5 and not countdown_sent[time_remaining]:
-            broadcast_room(room_name, "系統", f"🔔 **請注意！** 剩餘 {time_remaining} 秒！")
+            broadcast_room(room_name, "系統", f"**請注意！** 剩餘 {time_remaining} 秒！")
             countdown_sent[time_remaining] = True
             
         if role == "wolf":
@@ -217,7 +217,7 @@ def wait_for_action(room_name, role, timeout=60):
         time.sleep(0.1)
     
     if room_name in rooms:
-        broadcast_room(room_name, "系統", "❌ **時間到！** 行動結束。")
+        broadcast_room(room_name, "系統", "**時間到！** 行動結束。")
     return False
 
 # 遊戲主流程
@@ -233,7 +233,7 @@ def start_werewolf_game(room_name):
 
         # --- 1. 夜晚初始化 ---
         with rooms[room_name]['lock']:
-            broadcast_room(room_name, "系統", "🌙 夜晚降臨，所有玩家請閉眼 😴")
+            broadcast_room(room_name, "系統", "夜晚降臨，所有玩家請閉眼")
             last_guard_target = rooms[room_name]['game'].get('guard_target', '無')
             rooms[room_name]['game'] = {
                 "phase": None, "witch_action": None, "wolves_votes": {},
@@ -247,20 +247,20 @@ def start_werewolf_game(room_name):
         rooms[room_name]['game']['phase'] = 'wolf'
         wolf_members = [c for c in rooms[room_name]['members'] if c.get('game_role') in ['狼人', '狼王'] and c.get('alive')]
         if wolf_members:
-            broadcast_room(room_name, "系統", "🐺 狼人請睜眼 👀") 
+            broadcast_room(room_name, "系統", "狼人請睜眼") 
             
             # 取得可以殺的目標 (排除狼人隊友)
             all_wolves_names = [m['nickname'] for m in rooms[room_name]['members'] if m['game_role'] in ['狼人', '狼王']]
             target_list_str = get_alive_list_str(room_name, exclude_list=all_wolves_names)
 
             for c in wolf_members:
-                msg = (f"🐺 獵殺時刻！\n"
+                msg = (f"獵殺時刻！\n"
                        f"可選擇目標：{target_list_str}\n"
                        f"指令：殺 <玩家名>")
                 send_private_msg(c['socket'], "系統", msg)
             
             wait_for_action(room_name, 'wolf', timeout=90) 
-            broadcast_room(room_name, "系統", "🐺 狼人請閉眼 😴") 
+            broadcast_room(room_name, "系統", "狼人請閉眼") 
 
         # --- 3. 計算狼人目標 ---
         game = rooms[room_name]['game']
@@ -281,7 +281,7 @@ def start_werewolf_game(room_name):
         rooms[room_name]['game']['phase'] = 'guard'
         guard_members = [c for c in rooms[room_name]['members'] if c.get('game_role') == '守衛' and c.get('alive')]
         if guard_members:
-            broadcast_room(room_name, "系統", "🛡️ 守衛請睜眼 👀")
+            broadcast_room(room_name, "系統", "守衛請睜眼")
             target_list_str = get_alive_list_str(room_name)
             for c in guard_members:
                 last_target = rooms[room_name]['game'].get('last_guard_target', '無')
@@ -290,44 +290,44 @@ def start_werewolf_game(room_name):
                        f"指令：守護 <玩家名>")
                 send_private_msg(c['socket'], "系統", msg)
             wait_for_action(room_name, 'guard', timeout=60)
-            broadcast_room(room_name, "系統", "🛡️ 守衛請閉眼 😴")
+            broadcast_room(room_name, "系統", "守衛請閉眼")
             game = rooms[room_name]['game']
 
         # --- 5. 預言家階段 ---
         rooms[room_name]['game']['phase'] = 'seer'
         seer_members = [c for c in rooms[room_name]['members'] if c.get('game_role') == '預言家' and c.get('alive')]
         if seer_members:
-            broadcast_room(room_name, "系統", "🔮 預言家請睜眼 👀")
+            broadcast_room(room_name, "系統", "預言家請睜眼")
             target_list_str = get_alive_list_str(room_name)
             for c in seer_members:
-                msg = (f"🔮 請選擇查驗目標\n"
+                msg = (f"請選擇查驗目標\n"
                        f"可選擇目標：{target_list_str}\n"
                        f"指令：查驗 <玩家名>")
                 send_private_msg(c['socket'], "系統", msg)
             wait_for_action(room_name, 'seer', timeout=60)
-            broadcast_room(room_name, "系統", "🔮 預言家請閉眼 😴") 
+            broadcast_room(room_name, "系統", "預言家請閉眼") 
 
             if game.get('seer_target'):
                 target_name = game['seer_target']
                 target_obj = next((m for m in rooms[room_name]['members'] if m['nickname'] == target_name), None)
                 if target_obj: # 確保目標還在房間內
                      is_wolf_camp = target_obj['game_role'] in ['狼人', '狼王']
-                     result = "🐺 是狼人陣營" if is_wolf_camp else "✅ 是好人陣營"
+                     result = "是狼人陣營" if is_wolf_camp else "是好人陣營"
                      for c in seer_members:
-                         send_private_msg(c['socket'], "系統", f"🔮 查驗結果：{target_name} {result}")
+                         send_private_msg(c['socket'], "系統", f"查驗結果：{target_name} {result}")
 
         # --- 6. 女巫階段 ---
         rooms[room_name]['game']['phase'] = 'witch'
         witch_member = next((c for c in rooms[room_name]['members'] if c.get('game_role') == '女巫' and c.get('alive')), None)
         if witch_member:
-            broadcast_room(room_name, "系統", "🧙‍♀️ 女巫請睜眼 👀") 
+            broadcast_room(room_name, "系統", "女巫請睜眼") 
             wolf_info = f"本晚狼人欲殺害：**{wolf_target}**。" if wolf_target else "本晚狼人沒有指定目標。"
-            potion_status = f"解藥: {'✅ 有' if witch_member.get('can_use_potion') else '❌ 無'}"
-            poison_status = f"毒藥: {'✅ 有' if witch_member.get('can_use_poison') else '❌ 無'}"
+            potion_status = f"解藥: {'有' if witch_member.get('can_use_potion') else '無'}"
+            poison_status = f"毒藥: {'有' if witch_member.get('can_use_poison') else '無'}"
             target_list_str = get_alive_list_str(room_name)
             
             msg = (
-                f"🧙‍♀️ 請選擇操作\n"
+                f"請選擇操作\n"
                 f"==========\n"
                 f"{wolf_info}\n"
                 f"{potion_status} | {poison_status}\n"
@@ -337,7 +337,7 @@ def start_werewolf_game(room_name):
             )
             send_private_msg(witch_member['socket'], "系統", msg)
             wait_for_action(room_name, 'witch', timeout=60)
-            broadcast_room(room_name, "系統", "🧙‍♀️ 女巫請閉眼 😴")
+            broadcast_room(room_name, "系統", "女巫請閉眼")
 
         # --- 7. 夜晚結算 ---
         witch_action = game.get('witch_action')
@@ -376,13 +376,13 @@ def start_werewolf_game(room_name):
                     c['alive'] = False
                     death_list.append(d_name)
                     if c.get('game_role') == '狼王':
-                        broadcast_room(room_name, "系統", f"🐺 狼王 {d_name} 死亡！ (夜晚死亡無法報復)") 
+                        broadcast_room(room_name, "系統", f"狼王 {d_name} 死亡！ (夜晚死亡無法報復)") 
                     if c.get('game_role') == '獵人':
-                        broadcast_room(room_name, "系統", f"🏹 獵人 {d_name} 死亡！請獵人開槍。") 
+                        broadcast_room(room_name, "系統", f"獵人 {d_name} 死亡！請獵人開槍。") 
 
         time.sleep(1)
-        if death_list: broadcast_room(room_name, "系統", f"🌞 天亮了，昨晚死亡的是：{', '.join(death_list)}")
-        else: broadcast_room(room_name, "系統", "🌞 天亮了，昨晚是平安夜！")
+        if death_list: broadcast_room(room_name, "系統", f"天亮了，昨晚死亡的是：{', '.join(death_list)}")
+        else: broadcast_room(room_name, "系統", "天亮了，昨晚是平安夜！")
 
         if check_game_over(room_name):
             rooms[room_name]['state'] = 'waiting'; break
@@ -390,14 +390,14 @@ def start_werewolf_game(room_name):
         # --- 8. 白天發言與投票 ---
         rooms[room_name]['game']['phase'] = 'day'
         alive_list_str = get_alive_list_str(room_name)
-        broadcast_room(room_name, "系統", f"🗣️ 存活玩家：{alive_list_str}")
-        broadcast_room(room_name, "系統", "☀️ 請討論並投票。指令：`投票 <玩家名>` 或 `投票 棄票`")
+        broadcast_room(room_name, "系統", f"存活玩家：{alive_list_str}")
+        broadcast_room(room_name, "系統", "請討論並投票。指令：`投票 <玩家名>` 或 `投票 棄票`")
         
         wait_for_action(room_name, 'day_vote', timeout=120)
 
         # 投票結算
         day_votes = rooms[room_name]['game'].get('day_votes', {})
-        broadcast_room(room_name, "系統", "🗳️ 投票結束，正在計票...")
+        broadcast_room(room_name, "系統", "投票結束，正在計票...")
         time.sleep(1)
         
         detail_msg = [f"{v} 投給了 {t}" for v, t in day_votes.items()]
@@ -422,20 +422,20 @@ def start_werewolf_game(room_name):
                 if target_member and target_member.get('game_role') == '白癡':
                     target_member['alive'] = True
                     target_member['is_idiot'] = True
-                    broadcast_room(room_name, "系統", f"🤡 **{executed}** 是白癡，亮牌！免於處決，但從此不能投票。")
+                    broadcast_room(room_name, "系統", f"**{executed}** 是白癡，亮牌！免於處決，但從此不能投票。")
                     executed = None
                 else:
-                    broadcast_room(room_name, "系統", f"⚖️ 經過多數決投票，**{executed}** 被處決了。")
+                    broadcast_room(room_name, "系統", f"經過多數決投票，**{executed}** 被處決了。")
                     if target_member:
                         target_member['alive'] = False
                         
                         # 狼王報復
                         if target_member.get('game_role') == '狼王':
-                            broadcast_room(room_name, "系統", f"🐺 狼王 {executed} 死亡！請狼王開槍帶走一人。") 
+                            broadcast_room(room_name, "系統", f"狼王 {executed} 死亡！請狼王開槍帶走一人。") 
                             rooms[room_name]['game']['phase'] = 'wolfking_revenge'
                             rooms[room_name]['game']['wolfking_name'] = executed
                             target_list_str = get_alive_list_str(room_name)
-                            send_private_msg(target_member['socket'], "系統", f"💥 狼王報復！\n可選目標：{target_list_str}\n指令：報復 <玩家名>")
+                            send_private_msg(target_member['socket'], "系統", f"狼王報復！\n可選目標：{target_list_str}\n指令：報復 <玩家名>")
                             
                             revenge_start = time.time()
                             while time.time() - revenge_start < 10:
@@ -446,17 +446,17 @@ def start_werewolf_game(room_name):
                             revenge_target = rooms[room_name]['game'].get('revenge_target')
                             
                             if revenge_target:
-                                broadcast_room(room_name, "系統", f"💥 狼王 {executed} 開槍，帶走了 **{revenge_target}**！")
+                                broadcast_room(room_name, "系統", f"狼王 {executed} 開槍，帶走了 **{revenge_target}**！")
                                 revenge_member = next((m for m in rooms[room_name]['members'] if m['nickname'] == revenge_target), None)
                                 if revenge_member: revenge_member['alive'] = False
                                     
                         # 獵人報復
                         elif target_member.get('game_role') == '獵人':
-                            broadcast_room(room_name, "系統", f"🏹 獵人 {executed} 死亡！請獵人開槍。")
+                            broadcast_room(room_name, "系統", f"獵人 {executed} 死亡！請獵人開槍。")
                             rooms[room_name]['game']['phase'] = 'hunter_revenge'
                             rooms[room_name]['game']['hunter_name'] = executed
                             target_list_str = get_alive_list_str(room_name)
-                            send_private_msg(target_member['socket'], "系統", f"🔫 獵人開槍！\n可選目標：{target_list_str}\n指令：開槍 <玩家名> 或 開槍 棄槍")
+                            send_private_msg(target_member['socket'], "系統", f"獵人開槍！\n可選目標：{target_list_str}\n指令：開槍 <玩家名> 或 開槍 棄槍")
                             
                             rooms[room_name]['game']['revenge_target'] = None
                             revenge_start = time.time()
@@ -468,11 +468,11 @@ def start_werewolf_game(room_name):
                             revenge_target = rooms[room_name]['game'].get('revenge_target')
                             
                             if revenge_target and revenge_target != '棄槍':
-                                broadcast_room(room_name, "系統", f"🔫 獵人 {executed} 開槍，帶走了 **{revenge_target}**！")
+                                broadcast_room(room_name, "系統", f"獵人 {executed} 開槍，帶走了 **{revenge_target}**！")
                                 revenge_member = next((m for m in rooms[room_name]['members'] if m['nickname'] == revenge_target), None)
                                 if revenge_member: revenge_member['alive'] = False
                             elif revenge_target == '棄槍':
-                                broadcast_room(room_name, "系統", "💔 獵人選擇了棄槍。")
+                                broadcast_room(room_name, "系統", "獵人選擇了棄槍。")
                         
         if check_game_over(room_name):
             rooms[room_name]['state'] = 'waiting'; break
@@ -499,7 +499,7 @@ def client_thread(sock, addr):
                     sock.sendall((json.dumps({"type":2, "error":"暱稱重複"})+'\n').encode('utf-8')); continue
                 nickname = nickname_try
                 client_list.append({'nickname': nickname, 'socket': sock, 'room': None, 'role': 'user'})
-                print(f"[{time.strftime('%H:%M:%S')}] ✅ {nickname} 加入伺服器")
+                print(f"[{time.strftime('%H:%M:%S')}]  {nickname} 加入伺服器")
                 sock.sendall((json.dumps({"type": 2})+'\n').encode('utf-8'))
                 
             elif message['type'] == 3:
@@ -519,14 +519,14 @@ def client_thread(sock, addr):
                         me['room'] = r_name; me['role'] = 'host'
                         rooms[r_name] = {'password': r_pass, 'host': nickname, 'members': [me], 'state': 'waiting', 'lock': threading.Lock(), 'game': {}}
                         room_name = r_name
-                        sock.sendall(json_msg("系統", f"房間 {r_name} 建立成功，你是房主 👑"))
+                        sock.sendall(json_msg("系統", f"房間 {r_name} 建立成功，你是房主"))
                     
                     elif cmd == '/join':
                         if len(parts) < 3: sock.sendall(json_msg("系統","用法: /join <房名> <密碼>")); continue
                         r_name, r_pass = parts[1], parts[2]
                         if r_name not in rooms: sock.sendall(json_msg("系統","房間不存在")); continue
                         if rooms[r_name]['password'] != r_pass: sock.sendall(json_msg("系統","密碼錯誤")); continue
-                        if len(rooms[r_name]['members']) >= MAX_PLAYERS: sock.sendall(json_msg("系統",f"❌ 房間滿了")); continue
+                        if len(rooms[r_name]['members']) >= MAX_PLAYERS: sock.sendall(json_msg("系統",f"房間滿了")); continue
                         if rooms[r_name]['state'] == 'playing': sock.sendall(json_msg("系統","遊戲進行中無法加入")); continue
                         if room_name: leave_room(nickname, room_name)
                         me = next(c for c in client_list if c['nickname'] == nickname)
@@ -544,7 +544,7 @@ def client_thread(sock, addr):
                             host_name = rooms[room_name]['host']; display_list = []
                             is_playing = rooms[room_name].get('state') == 'playing'
                             for m in rooms[room_name]['members']:
-                                role_tag = " (房主) 👑" if m['nickname'] == host_name else ""
+                                role_tag = " (房主) " if m['nickname'] == host_name else ""
                                 alive_status = " ✅" if is_playing and m.get('alive') else (" ❌" if is_playing else "")
                                 display_list.append(m['nickname'] + role_tag + alive_status)
                             sock.sendall(json_msg("系統", f"房間成員:\n" + "\n".join(display_list)))
@@ -554,13 +554,13 @@ def client_thread(sock, addr):
                         if room_name in rooms:
                             if rooms[room_name]['host'] == nickname:
                                 if len(rooms[room_name]['members']) >= 4:
-                                    rooms[room_name]['state'] = 'playing'; broadcast_room(room_name, "系統", "🎮 遊戲開始！")
+                                    rooms[room_name]['state'] = 'playing'; broadcast_room(room_name, "系統", "遊戲開始！")
                                     assign_roles(room_name)
                                     if rooms[room_name]['state'] == 'playing':
                                         threading.Thread(target=start_werewolf_game, args=(room_name,), daemon=True).start()
-                                else: sock.sendall(json_msg("系統", f"❌ 人數不足 (至少 4 人)"))
-                            else: sock.sendall(json_msg("系統","❌ 只有房主可以開始遊戲"))
-                        else: sock.sendall(json_msg("系統", "❌ 請先加入房間"))
+                                else: sock.sendall(json_msg("系統", f"人數不足 (至少 4 人)"))
+                            else: sock.sendall(json_msg("系統","只有房主可以開始遊戲"))
+                        else: sock.sendall(json_msg("系統", "請先加入房間"))
 
                     elif cmd == '/help':
                         help_txt = (
@@ -583,7 +583,7 @@ def client_thread(sock, addr):
                             "\n 8️⃣ 　女巫不使用藥水：　　　　　　　輸入 不使用"
                             "\n 9️⃣ 　獵人：　　　　　　　　　　　　輸入 開槍 <名>"
                             "\n==================================================="
-                            "\n 💡  小提示：房間內直接輸入文字即可聊天 "
+                            "\n 小提示：房間內直接輸入文字即可聊天 "
                             "\n==================================================="
                         )
                         sock.sendall(json_msg("系統", help_txt))
@@ -603,29 +603,29 @@ def client_thread(sock, addr):
                                 target = parts[1]
                                 if target == "棄票" or check_alive_target(room_name, target):
                                     with rooms[room_name]['lock']: game['day_votes'][nickname] = target
-                                    sock.sendall(json_msg("系統", f"✅ 你投給了：{target}"))
-                                else: sock.sendall(json_msg("系統", "❌ 目標不存在或已死亡"))
+                                    sock.sendall(json_msg("系統", f"你投給了：{target}"))
+                                else: sock.sendall(json_msg("系統", "目標不存在或已死亡"))
 
                         # 2. 守護 (守衛)
                         elif parts[0] == '守護' and phase == 'guard' and me.get('alive') and me.get('game_role') == '守衛':
                              if len(parts) < 2: send_private_msg(sock, "系統", "用法: 守護 <玩家名>") # 統一格式
                              else:
                                  target = parts[1]
-                                 if not check_alive_target(room_name, target): send_private_msg(sock, "系統", "❌ 目標不存在或已死亡")
-                                 elif target == rooms[room_name]['game'].get('last_guard_target'): send_private_msg(sock, "系統", "❌ 不能連續守護同一個人")
+                                 if not check_alive_target(room_name, target): send_private_msg(sock, "系統", "目標不存在或已死亡")
+                                 elif target == rooms[room_name]['game'].get('last_guard_target'): send_private_msg(sock, "系統", "不能連續守護同一個人")
                                  else:
                                      with rooms[room_name]['lock']: game['guard_target'] = target
-                                     send_private_msg(sock, "系統", f"✅ 守護：{target}")
+                                     send_private_msg(sock, "系統", f"守護：{target}")
 
                         # 3. 查驗 (預言家)
                         elif parts[0] == '查驗' and phase == 'seer' and me.get('alive') and me.get('game_role') == '預言家':
                              if len(parts) < 2: send_private_msg(sock, "系統", "用法: 查驗 <玩家名>") # 統一格式
                              else:
                                  target = parts[1]
-                                 if not check_alive_target(room_name, target): send_private_msg(sock, "系統", "❌ 目標不存在或已死亡")
+                                 if not check_alive_target(room_name, target): send_private_msg(sock, "系統", "目標不存在或已死亡")
                                  else:
                                      with rooms[room_name]['lock']: game['seer_target'] = target
-                                     send_private_msg(sock, "系統", f"✅ 查驗：{target}")
+                                     send_private_msg(sock, "系統", f"查驗：{target}")
 
                         # 4. 殺 (狼人)
                         elif parts[0] == '殺' and phase == 'wolf' and me.get('alive') and me['game_role'] in ['狼人', '狼王']:
@@ -639,12 +639,12 @@ def client_thread(sock, addr):
                                 target_list_str = get_alive_list_str(room_name, exclude_list=all_wolves_names)
 
                                 if target_obj and target_obj['game_role'] in ['狼人', '狼王']:
-                                    send_private_msg(sock, "系統", "❌ 不能殺隊友")
+                                    send_private_msg(sock, "系統", "不能殺隊友")
                                 elif target not in target_list_str.split(', '): # 檢查是否在可殺的存活名單中
-                                    send_private_msg(sock, "系統", f"❌ 目標不存在或已死亡/為隊友\n可選擇目標：{target_list_str}")
+                                    send_private_msg(sock, "系統", f"目標不存在或已死亡/為隊友\n可選擇目標：{target_list_str}")
                                 else:
                                     with rooms[room_name]['lock']: game['wolves_votes'][nickname] = target
-                                    send_private_msg(sock, "系統", f"✅ 選擇殺：{target}")
+                                    send_private_msg(sock, "系統", f"選擇殺：{target}")
                                     for c in rooms[room_name]['members']:
                                         if c.get('game_role') in ['狼人', '狼王'] and c.get('alive'):
                                             send_private_msg(c['socket'], "系統", f"(隊友) {nickname} 殺 {target}")
@@ -658,9 +658,9 @@ def client_thread(sock, addr):
                                 continue
                             else:
                                 target = parts[1]
-                                if not check_alive_target(room_name, target): send_private_msg(sock, "系統", "❌ 目標不存在或已死亡"); continue
-                                if parts[0] == '解藥' and not me.get('can_use_potion'): send_private_msg(sock, "系統", "❌ 解藥已用過"); continue
-                                if parts[0] == '毒藥' and not me.get('can_use_poison'): send_private_msg(sock, "系統", "❌ 毒藥已用過"); continue
+                                if not check_alive_target(room_name, target): send_private_msg(sock, "系統", "目標不存在或已死亡"); continue
+                                if parts[0] == '解藥' and not me.get('can_use_potion'): send_private_msg(sock, "系統", "解藥已用過"); continue
+                                if parts[0] == '毒藥' and not me.get('can_use_poison'): send_private_msg(sock, "系統", "毒藥已用過"); continue
                                 
                                 type_ = 'save' if parts[0] == '解藥' else 'poison'
                                 with rooms[room_name]['lock']: game['witch_action'] = {'type': type_, 'target': target}
@@ -677,8 +677,8 @@ def client_thread(sock, addr):
                                  target = parts[1]
                                  if check_alive_target(room_name, target):
                                      with rooms[room_name]['lock']: game['revenge_target'] = target
-                                     send_private_msg(sock, "系統", f"✅ 報復目標：{target}")
-                                 else: send_private_msg(sock, "系統", "❌ 目標錯誤")
+                                     send_private_msg(sock, "系統", f"報復目標：{target}")
+                                 else: send_private_msg(sock, "系統", "目標錯誤")
 
                         # 7. 獵人開槍
                         elif parts[0] == '開槍' and phase == 'hunter_revenge' and not me.get('alive') and me['game_role'] == '獵人':
@@ -687,18 +687,18 @@ def client_thread(sock, addr):
                                  target = parts[1]
                                  if target == '棄槍':
                                       with rooms[room_name]['lock']: game['revenge_target'] = '棄槍'
-                                      send_private_msg(sock, "系統", "✅ 選擇棄槍")
+                                      send_private_msg(sock, "系統", "選擇棄槍")
                                  elif check_alive_target(room_name, target):
                                       with rooms[room_name]['lock']: game['revenge_target'] = target
-                                      send_private_msg(sock, "系統", f"✅ 帶走目標：{target}")
-                                 else: send_private_msg(sock, "系統", "❌ 目標錯誤")
+                                      send_private_msg(sock, "系統", f"帶走目標：{target}")
+                                 else: send_private_msg(sock, "系統", "目標錯誤")
 
                         # 8. 聊天 (白天廣播 / 夜晚自言自語 / 鬼魂)
                         else:
                             # 如果玩家嘗試在錯誤階段輸入指令，提示錯誤，否則視為聊天
                             potential_cmds = ['投票', '守護', '查驗', '殺', '毒藥', '解藥', '報復', '開槍']
                             if parts[0] in potential_cmds:
-                                send_private_msg(sock, "系統", "❌ 當前階段無法使用此指令或身分不符")
+                                send_private_msg(sock, "系統", "當前階段無法使用此指令或身分不符")
                             elif me.get('alive'):
                                 if phase == 'day': broadcast_room(room_name, nickname, msg_text)
                                 else: broadcast_room(room_name, nickname, msg_text) # 夜晚自言自語
@@ -723,9 +723,9 @@ def main():
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     try: s.bind((bind_ip, bind_port))
     except OSError: return
-    s.listen(5); print(f"📡 伺服器啟動於{bind_ip} {bind_port}...")
-    print("🚀 多人聊天室伺服器啟動中...")
-    print("\n🕓 等待新連線中...\n")
+    s.listen(5); print(f"伺服器啟動於{bind_ip} {bind_port}...")
+    print("多人聊天室伺服器啟動中...")
+    print("\n等待新連線中...\n")
 
     while True:
         try: conn, addr = s.accept(); threading.Thread(target=client_thread, args=(conn, addr), daemon=True).start()
