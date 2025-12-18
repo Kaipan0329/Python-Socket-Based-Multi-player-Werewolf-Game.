@@ -1,3 +1,4 @@
+#Client
 import socket
 import threading
 import json
@@ -6,7 +7,7 @@ import time
 import platform
 
 remote_addr = ('127.0.0.1', 6000)
-use_emojㄇi = platform.system() != 'Windows'
+use_emoji = platform.system() != 'Windows'
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
