@@ -23,7 +23,7 @@ room_name = None
 
 # ------------------ 登入暱稱 ------------------
 while True:
-    nickname = input("📥 請輸入你的暱稱/別名：")
+    nickname = input("請輸入你的暱稱/別名：")
     msgdict = {"type": 1, "nickname": nickname}
     sock.sendall((json.dumps(msgdict)+'\n').encode('utf-8'))
 
